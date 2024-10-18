@@ -5,17 +5,16 @@ import Seo from '../components/seo'
 
 const ArticlesPage = ({ data }) => {
   return (
-    <Layout pageTitle="Recipes">
+    <Layout pageTitle="Articles">
       {
-        data.Drupal.nodeRecipes.nodes.map((node) => (
+        data.Drupal.nodeArticles.nodes.map((node) => (
           <article key={node.id}>
             <h2>
               <Link to={`${node.path}`.slice(3)}>
                 {node.title}
               </Link>
             </h2>
-            <p>Prep Time: {node.preparationTime} Minutes</p>
-            <p>Cook Time: {node.cookingTime} Minutes</p>
+            <p>By: {node.author.displayName}</p>
           </article>
         ))
       }
@@ -26,13 +25,14 @@ const ArticlesPage = ({ data }) => {
 export const query = graphql`
     query {
         Drupal {
-            nodeRecipes(first: 10) {
+            nodeArticles(first: 10) {
                 nodes {
                     id
                     title
                     path
-                    preparationTime
-                    cookingTime
+                    author {
+                      displayName
+                    }
                 }
             }
         }

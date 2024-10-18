@@ -33,23 +33,35 @@ exports.createPages = async ({ graphql, actions }) => {
                         }
                     }
                 }
-                nodeArticles(first: 10) {
-                    nodes {
-                        author {
-                            displayName
-                            }
-                        mediaImage {
-                            mediaImage {
-                                url
-                            }
-                        }
-                        path
-                        body {
-                            processed
-                        }
-                        title
-                    }
             }
+        }
+    `)
+    const articlePostTemplate = path.resolve(`src/templates/articlePost.js`)
+    const article = await graphql(`
+        query {
+            Drupal {
+                nodeArticles(first: 10) {
+                    edges {
+                        node {
+                            author {
+                                displayName
+                            }
+                            mediaImage {
+                                mediaImage {
+                                    url
+                                }
+                            }
+                            path
+                            body {
+                                processed
+                            }
+                            title
+                            id
+                        }
+                    } 
+                }       
+            }        
+            
         }
     `)
     recipe.data.Drupal.nodeRecipes.edges.forEach(element => {
@@ -73,4 +85,22 @@ exports.createPages = async ({ graphql, actions }) => {
             },
         })
     });
+
+    article.data.Drupal.nodeArticles.edges.forEach(element => {
+        const articlePath = `${element.node.path}`.slice(3);
+        createPage({
+            path: articlePath,
+            component: articlePostTemplate,
+            context: {
+              title: element.node.title,
+              id: element.node.id,
+              image: element.node.mediaImage.mediaImage.url,
+              author: element.node.author.displayName,
+              body: element.node.body.processed,
+              
+            },
+        })
+    });
+
+    
 }
